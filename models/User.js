@@ -25,31 +25,16 @@ const User = db.define('User', {
         allowNull: true
     },
     role: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         allowNull: false
-    },
-    salt: {
-        type: DataTypes.STRING,
     }
 });
 
-User.genSalt = () => Math.round(new Date().valueOf() * Math.random()) + '';
-
-User.prototype.hashPassword = async password => {
+User.prototype.comparePassword = async function(password) {
     try {
-        const hashedPassword = await bcrypt.hash(password, this.salt);
-        return hashedPassword;
+        const isValid = await bcrypt.compare(password, this.password);
+        return isValid;
 
-    } catch (err) {
-        console.error(err);
-    }
-} 
-
-User.prototype.comparePassword = async password => {
-    try {
-        const hashedPassword = await hashPassword(password, this.salt);
-        return hashedPassword === this.password;
-    
     } catch(err) {
         console.error(err);
     }
@@ -57,9 +42,8 @@ User.prototype.comparePassword = async password => {
 
 User.beforeSave(async user => {
     try {
-        const salt = user.genSalt();
-        const hashedPassword = await user.hashPassword(user.password, salt);
-        user.salt = salt;
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(user.password, salt);
         user.password = hashedPassword;
 
     } catch (err) {
