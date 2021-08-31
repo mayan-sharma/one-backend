@@ -25,9 +25,7 @@ exports.register = async (req, res) => {
 
         res.status(200).json({
             message: 'User successfully registered!',
-            data: {
-                user: { username, name, email }
-            }
+            user: { username, name, email }
         })
 
     } catch (err) {
@@ -59,10 +57,8 @@ exports.login = async (req, res) => {
         res.cookie('token', token);
         res.status(200).json({
             message: 'User logged in successfully!',
-            data: {
-                user: { id: user.id, username: user.username, email: user.email },
-                token
-            }
+            user: { id: user.id, username: user.username, email: user.email },
+            token
         })
 
     } catch (err) {
