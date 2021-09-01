@@ -72,6 +72,13 @@ exports.logout = () => {
     });
 }
 
+exports.getUser = (req, res) => {
+    return res.status(200).json({
+        message: 'User fetched successfully!',
+        user: req.user
+    })
+}
+
 exports.isAuth = async (req, res, next) => {
     try {
         let token = null;

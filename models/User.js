@@ -26,7 +26,7 @@ const User = db.define('User', {
     },
     role: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        default: 0
     }
 });
 
