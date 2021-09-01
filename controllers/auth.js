@@ -1,6 +1,5 @@
 const shortId = require('shortid');
 const jwt = require('jsonwebtoken');
-const expressJwt = require('express-jwt');
 
 const User = require('../models/User');
 const config = require('../config/config');
@@ -62,7 +61,7 @@ exports.login = async (req, res) => {
         })
 
     } catch (err) {
-
+        console.error(err);
     }
 }
 
@@ -70,5 +69,53 @@ exports.logout = () => {
     res.clearCookie('token');
     res.status(200).json({
         message: 'Logged out successfully!'
-    })
+    });
+}
+
+exports.isAuth = async (req, res, next) => {
+    try {
+        let token = null;
+        const authHeader = req.header('Authorization');
+        if (authHeader?.startsWith('Bearer')) {
+            token = authHeader.substring(7, authHeader.length);
+        }
+
+        if (!token) return res.status(401).json({
+            message: 'Access Denied!'
+        });
+
+        const payload = jwt.verify(token, config.JWT_SECRET);
+
+        const user = await User.findOne({ where: { id: payload.id } }); 
+
+        if (!user) return res.status(400).json({
+            message: 'Invalid token!'
+        });
+
+        req.user = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role
+        };
+        next();
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+exports.isAdmin = async (req, res, next) => {
+    try {
+        const userRole = req.user.role;
+        if (userRole !== 1) {
+            return res.status(403).json({
+                message: 'Forbidden!'
+            });
+        }
+        next();
+
+    } catch (err) {
+        console.error(err);
+    }
 }
