@@ -1,6 +1,7 @@
 const slugify = require('slugify');
 
 const Category = require('../models/Category');
+const errorHandler = require('../lib/errorHandler');
 
 exports.create = async (req, res) => {
     const { name } = req.body;
@@ -17,6 +18,6 @@ exports.create = async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
+        errorHandler(res, err);
     }
 }

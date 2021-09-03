@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
 const config = require('../config/config');
+const errorHandler = require('../lib/errorHandler');
 
 exports.register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -27,7 +28,7 @@ exports.register = async (req, res) => {
         })
 
     } catch (err) {
-        console.error(err);
+        errorHandler(res, err);
     }
 }
 
@@ -60,7 +61,7 @@ exports.login = async (req, res) => {
         })
 
     } catch (err) {
-        console.error(err);
+        errorHandler(res, err);
     }
 }
 
@@ -107,7 +108,7 @@ exports.isAuth = async (req, res, next) => {
         next();
 
     } catch (err) {
-        console.error(err);
+        errorHandler(res, err);
     }
 }
 
@@ -122,6 +123,6 @@ exports.isAdmin = async (req, res, next) => {
         next();
 
     } catch (err) {
-        console.error(err);
+        errorHandler(res, err);
     }
 }
