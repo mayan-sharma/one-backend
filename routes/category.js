@@ -8,5 +8,8 @@ const { categoryCreateValidator } = require('../validators/category');
 const router = express.Router();    
 
 router.post('/', categoryCreateValidator, runValidation, isAuth, isAdmin, categoryController.create);
+router.get('/', categoryController.getAll);
+router.get('/:slug', categoryController.getBySlug);
+router.delete('/:slug', isAuth, isAdmin, categoryController.remove);
 
 module.exports = router;
