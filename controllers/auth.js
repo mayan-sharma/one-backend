@@ -16,10 +16,9 @@ exports.register = async (req, res) => {
         }
 
         const username = shortId.generate();
-        const role = 1;
 
         await User.create({
-            name, email, password, username, role
+            name, email, password, username
         });
 
         res.status(200).json({
