@@ -7,6 +7,10 @@ db.Category = require('./Category')(db, DataTypes);
 db.Tag = require('./Tag')(db, DataTypes);
 db.User = require('./User')(db, DataTypes);
 
+db.User.hasMany(db.Blog);
+
+db.Blog.belongsTo(db.User);
+
 db.Blog.belongsToMany(db.Category, {
     through: 'BlogCategory'
 });
