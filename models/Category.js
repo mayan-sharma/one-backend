@@ -1,16 +1,14 @@
-const { DataTypes } = require('sequelize');
+module.exports = function(db, DataTypes) {
+    const Category = db.define('Category', {
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        slug: {
+            type: DataTypes.STRING,
+            unique: true
+        }
+    });
 
-const db = require('../config/postgres');
-
-const Category = db.define('Category', {
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    slug: {
-        type: DataTypes.STRING,
-        unique: true
-    }
-});
-
-module.exports = Category;
+    return Category;
+}

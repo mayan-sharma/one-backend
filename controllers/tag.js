@@ -1,7 +1,9 @@
 const slugify = require('slugify');
 
-const Tag = require('../models/Tag');
+const db = require('../models');
 const errorHandler = require('../lib/errorHandler');
+
+const Tag = db.Tag;
 
 exports.create = async (req, res) => {
     const { name } = req.body;

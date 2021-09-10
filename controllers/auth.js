@@ -1,9 +1,11 @@
 const shortId = require('shortid');
 const jwt = require('jsonwebtoken');
 
-const User = require('../models/User');
+const db = require('../models');
 const config = require('../config/config');
 const errorHandler = require('../lib/errorHandler');
+
+const User = db.User;
 
 exports.register = async (req, res) => {
     const { name, email, password } = req.body;

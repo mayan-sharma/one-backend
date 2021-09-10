@@ -1,7 +1,9 @@
 const slugify = require('slugify');
 
-const Category = require('../models/Category');
+const db = require('../models');
 const errorHandler = require('../lib/errorHandler');
+
+const Category = db.Category;
 
 exports.create = async (req, res) => {
     const { name } = req.body;
