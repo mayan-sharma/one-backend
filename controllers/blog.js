@@ -1,11 +1,89 @@
+const formidable = require('formidable');
+const slugify = require('slugify');
+const { stripHtml } = require('string-strip-html');
+const _ = require('lodash');
+const fs = require('fs');
+
+const errorHandler = require('../lib/errorHandler');
 const db = require('../models');
 
 const Blog = db.Blog;
+const Category = db.Category;
+const Tag = db.Tag;
 
-const testRoute = (req, res) => {
-    res.send({
-        message: 'Blog Route'
+exports.create = (req, res) => {
+    const form = new formidable.IncomingForm();
+    form.keepExtensions = true;
+
+    form.parse(req, (err, fields, files) => {
+        
+        if (err) {
+            return res.status(400).json({
+                message: 'Image could not upload'
+            });
+        }
+
+        const { title, body, categories, tags } = fields;
+
+        if (!title || !title.length) {
+            return res.status(400).json({
+                message: 'Title required'
+            });
+        }
+
+        if (!body || body.length < 100) {
+            return res.status(400).json({
+                message: 'Content is too short'
+            });
+        }
+
+        if (!categories || categories.length === 0) {
+            return res.status(400).json({
+                message: 'Atleast 1 category required'
+            });
+        }
+
+        // if (!tags || tags.length === 0) {
+        //     return res.status(400).json({
+        //         message: 'Atleast 1 tag required'
+        //     });
+        // }
+
+        let photo = null;
+
+        if (files.photo) {
+            // 1mb
+            if (files.photo.size > 10000000) {
+                return res.status(400).json({
+                    message: 'Image should be less than 1mb'
+                });
+            }
+            photo = fs.readFileSync(files.photo.path);
+        }
+
+        Blog.create({
+            title,
+            body,
+            photo,
+            slug: slugify(title).toLowerCase(),
+            metaTitle: `${title} | one`,
+            metaDesc: stripHtml(body.substring(0, 160)).result,
+            UserId: req.user.id,
+        })
+        .then(blog => {
+            Category.findAll({ where: { id: categories.split(',') } }).then(categories => {
+                blog.addCategories(categories).then(() => {
+                    return res.status(200).json({
+                        message: 'Blog created successfully!',
+                        blog: {
+                            title: blog.title,
+                            metaTitle: blog.metaTitle
+                        }
+                    });
+                })
+                .catch(err => errorHandler(res, err));
+            })
+        })
+        .catch(err => errorHandler(res, err));
     });
 }
-
-module.exports = testRoute;

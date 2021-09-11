@@ -1,9 +1,10 @@
 const express = require('express');
 
-const testRoute = require('../controllers/blog');
+const blogController = require('../controllers/blog');
+const { isAuth } = require('../controllers/auth');
 
 const router = express.Router();    
 
-router.get('/', testRoute);
+router.post('/', isAuth, blogController.create);
 
 module.exports = router;
