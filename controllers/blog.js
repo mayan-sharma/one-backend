@@ -11,17 +11,20 @@ const Blog = db.Blog;
 const Category = db.Category;
 const Tag = db.Tag;
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     const form = new formidable.IncomingForm();
     form.keepExtensions = true;
 
-    form.parse(req, (err, fields, files) => {
-        
-        if (err) {
-            return res.status(400).json({
-                message: 'Image could not upload'
+    try {
+        const { fields, files } = await new Promise((resolve, reject) => {
+            form.parse(req, (err, fields, files) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve({ fields, files });
             });
-        }
+        });
 
         const { title, body, categories, tags } = fields;
 
@@ -43,11 +46,11 @@ exports.create = (req, res) => {
             });
         }
 
-        // if (!tags || tags.length === 0) {
-        //     return res.status(400).json({
-        //         message: 'Atleast 1 tag required'
-        //     });
-        // }
+        if (!tags || tags.length === 0) {
+            return res.status(400).json({
+                message: 'Atleast 1 tag required'
+            });
+        }
 
         let photo = null;
 
@@ -61,29 +64,37 @@ exports.create = (req, res) => {
             photo = fs.readFileSync(files.photo.path);
         }
 
-        Blog.create({
-            title,
-            body,
-            photo,
-            slug: slugify(title).toLowerCase(),
-            metaTitle: `${title} | one`,
-            metaDesc: stripHtml(body.substring(0, 160)).result,
-            UserId: req.user.id,
-        })
-        .then(blog => {
-            Category.findAll({ where: { id: categories.split(',') } }).then(categories => {
-                blog.addCategories(categories).then(() => {
-                    return res.status(200).json({
-                        message: 'Blog created successfully!',
-                        blog: {
-                            title: blog.title,
-                            metaTitle: blog.metaTitle
-                        }
-                    });
-                })
-                .catch(err => errorHandler(res, err));
-            })
-        })
-        .catch(err => errorHandler(res, err));
-    });
+        await db.transaction(async (transaction) => {
+            try {
+                const blog = await Blog.create({
+                    title,
+                    body,
+                    photo,
+                    slug: slugify(title).toLowerCase(),
+                    metaTitle: `${title} | one`,
+                    metaDesc: stripHtml(body.substring(0, 160)).result,
+                    UserId: req.user.id,    
+                }, { transaction });
+    
+                const dbCategories = await Category.findAll({ where: { id: categories.split(',') } }, { transaction });
+                const dbTags = await Tag.findAll({ where: { id: categories.split(',') } }, { transaction });
+                
+                await blog.addCategories(dbCategories, { transaction });
+                await blog.addTags(dbTags, { transaction });
+
+            } catch (err) {
+                errorHandler(res, err);               
+            }
+        });
+
+        return res.status(200).json({
+            message: 'Blog created successfully',
+            blog: {
+                title
+            }
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
 }

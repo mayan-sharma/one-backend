@@ -19,4 +19,12 @@ db.Category.belongsToMany(db.Blog, {
     through: 'BlogCategory'
 });
 
+db.Blog.belongsToMany(db.Tag, {
+    through: 'BlogTag'
+});
+
+db.Tag.belongsToMany(db.Blog, {
+    through: 'BlogTag'
+});
+
 module.exports = db;
