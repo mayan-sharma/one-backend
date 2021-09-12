@@ -4,6 +4,7 @@ const { stripHtml } = require('string-strip-html');
 const _ = require('lodash');
 const fs = require('fs');
 
+const getExcerpt = require('../lib/getExcerpt');
 const errorHandler = require('../lib/errorHandler');
 const db = require('../models');
 
@@ -73,6 +74,7 @@ exports.create = async (req, res) => {
                     slug: slugify(title).toLowerCase(),
                     metaTitle: `${title} | one`,
                     metaDesc: stripHtml(body.substring(0, 160)).result,
+                    excerpt: getExcerpt(body, 320, ' ', '...'), 
                     UserId: req.user.id,    
                 }, { transaction });
     
