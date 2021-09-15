@@ -133,11 +133,57 @@ exports.getAll = async (req, res) => {
 }
 
 exports.getBySlug = async (req, res) => {
+    const slug = req.params.slug.toLowerCase();
+    try {
+        const blog = await Blog.findOne({
+            where: { slug },
+            attributes: ['id', 'title', 'slug', 'metaTitle', 'metaDesc', 'excerpt', 'body'],
+            include: [
+                {
+                    model: User,
+                    attributes: ['id', 'name', 'email']
+                },
+                {
+                    model: Category,
+                    attributes: ['id', 'name', 'slug']
+                },
+                {
+                    model: Tag,
+                    attributes: ['id', 'name', 'slug']
+                }
+            ]
+        });
 
+        if (!blog) {
+            return res.status(404).json({
+                message: 'Blog not found!'
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Blog fetched successfully',
+            blog
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
 }
 
 exports.remove = async (req, res) => {
+    const slug = req.params.slug.toLowerCase();
+    try {
+        await Blog.destroy({
+            where: { slug }
+        });
 
+        return res.status(200).json({
+            message: 'Blog deleted!'
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
 }
 
 exports.update = async (req, res) => {

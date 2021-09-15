@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/', isAuth, blogController.create);
 router.get('/', blogController.getAll);
 router.get('/:slug', blogController.getBySlug);
-router.get('/:slug', isAuth, isAdmin, blogController.remove);
+router.delete('/:slug', isAuth, isAdmin, blogController.remove);
 router.put('/:slug', isAuth, isAdmin, blogController.update);
 
 module.exports = router;
