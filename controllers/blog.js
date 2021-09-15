@@ -280,3 +280,23 @@ exports.update = async (req, res) => {
         errorHandler(res, err);
     }
 }
+
+exports.photo = async (req, res) => {
+    const slug = req.params.slug.toLowerCase();
+    try {
+        const blog = await Blog.findOne({ where: { slug } });
+        
+        if (!blog) {
+            return res.status(404).json({
+                message: 'Blog not found!'
+            });
+        }
+
+        // add more types (content-type field in photo)
+        res.set('Content-Type', 'image/png')
+        return res.send(blog.photo);
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}
