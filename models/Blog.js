@@ -33,9 +33,6 @@ module.exports = function(db, DataTypes) {
         },
         metaDesc: {
             type: DataTypes.STRING
-        },
-        photo: {
-            type: DataTypes.BLOB
         }
     });
 

@@ -12,6 +12,7 @@ const Blog = db.Blog;
 const Category = db.Category;
 const Tag = db.Tag;
 const User = db.User;
+const Photo = db.Photo;
 
 exports.create = async (req, res) => {
     const form = new formidable.IncomingForm();
@@ -54,7 +55,7 @@ exports.create = async (req, res) => {
             });
         }
 
-        let photo = null;
+        let photo = {};
 
         if (files.photo) {
             // 1mb
@@ -63,25 +64,27 @@ exports.create = async (req, res) => {
                     message: 'Image should be less than 1mb'
                 });
             }
-            photo = fs.readFileSync(files.photo.path);
+            photo.data = fs.readFileSync(files.photo.path);
+            photo.contentType = files.photo.type;
         }
 
         await db.transaction(async (transaction) => {
             try {
+
                 const blog = await Blog.create({
                     title,
                     body,
-                    photo,
                     slug: slugify(title).toLowerCase(),
                     metaTitle: `${title} | one`,
                     metaDesc: stripHtml(body.substring(0, 160)).result,
                     excerpt: getExcerpt(body, 320, ' ', '...'), 
-                    UserId: req.user.id,    
+                    UserId: req.user.id
                 }, { transaction });
     
                 const dbCategories = await Category.findAll({ where: { id: categories.split(',') } }, { transaction });
                 const dbTags = await Tag.findAll({ where: { id: tags.split(',') } }, { transaction });
                 
+                await blog.createPhoto(photo, { transaction });
                 await blog.addCategories(dbCategories, { transaction });
                 await blog.addTags(dbTags, { transaction });
 
@@ -292,9 +295,10 @@ exports.photo = async (req, res) => {
             });
         }
 
-        // add more types (content-type field in photo)
-        res.set('Content-Type', 'image/png')
-        return res.send(blog.photo);
+        const photo = await Photo.findOne({ where: { BlogId: blog.id } });
+
+        res.set('Content-Type', photo.contentType)
+        return res.send(photo.data);
 
     } catch (err) {
         errorHandler(res, err);
