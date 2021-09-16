@@ -7,9 +7,9 @@ const tagRouter = require('./tag');
 
 const router = express.Router();
 
-router.use('/blog', blogRouter);
+router.use('/blogs', blogRouter);
 router.use('/auth', authRouter);
-router.use('/category', categoryRouter);
-router.use('/tag', tagRouter);
+router.use('/categories', categoryRouter);
+router.use('/tags', tagRouter);
 
 module.exports = router;

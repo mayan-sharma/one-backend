@@ -5,11 +5,14 @@ const { isAuth, isAdmin } = require('../controllers/auth');
 
 const router = express.Router();    
 
-router.post('/', isAuth, blogController.create);
-router.get('/', blogController.getAll);
+router.get('/blogs-categories-tags', blogController.getAllWithCategoriesAndTags);
+router.get('/photo/:slug', blogController.photo);
 router.get('/:slug', blogController.getBySlug);
+router.get('/', blogController.getAll);
+
+router.post('/', isAuth, blogController.create);
+
 router.delete('/:slug', isAuth, isAdmin, blogController.remove);
 router.put('/:slug', isAuth, isAdmin, blogController.update);
-router.get('/photo/:slug', blogController.photo);
 
 module.exports = router;

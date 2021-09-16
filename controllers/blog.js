@@ -173,6 +173,47 @@ exports.getBySlug = async (req, res) => {
     }
 }
 
+exports.getAllWithCategoriesAndTags = async (req, res) => {
+    try {
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = req.query.skip ? parseInt(req.query.skip) : 0;
+
+        const blogs = await Blog.findAll({
+            attributes: ['id', 'title', 'slug', 'excerpt'],
+            include: [
+                {
+                    model: User,
+                    attributes: ['id', 'name', 'email']
+                },
+                {
+                    model: Category,
+                    attributes: ['id', 'name', 'slug']
+                },
+                {
+                    model: Tag,
+                    attributes: ['id', 'name', 'slug']
+                }
+            ],
+            order: [['createdAt', 'DESC']],
+            offset: skip,
+            subQuery: false,
+            limit
+        });
+
+        const categories = await Category.findAll();
+        const tags = await Tag.findAll();
+
+        return res.status(200).json({
+            message: 'Data fetched successfully!',
+            size: blogs.length,
+            blogs, categories, tags
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}
+
 exports.remove = async (req, res) => {
     const slug = req.params.slug.toLowerCase();
     try {
