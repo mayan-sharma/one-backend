@@ -3,6 +3,7 @@ const slugify = require('slugify');
 const { stripHtml } = require('string-strip-html');
 const _ = require('lodash');
 const fs = require('fs');
+const { Op } = require('sequelize');
 
 const getExcerpt = require('../lib/getExcerpt');
 const errorHandler = require('../lib/errorHandler');
@@ -207,6 +208,41 @@ exports.getAllWithCategoriesAndTags = async (req, res) => {
             message: 'Data fetched successfully!',
             size: blogs.length,
             blogs, categories, tags
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}
+
+
+exports.getRelated = async (req, res) => {
+    try {
+        const slug = req.params.slug.toLowerCase();
+        const limit = req.query.limit ? parseInt(req.query.limit) : 3;
+
+        const blog = await Blog.findOne({
+            include: [{ model: Category }], 
+            where: { slug }
+        });
+        
+        if (!blog) return res.status(404).json({
+            message: 'No blog found with this slug!'
+        });
+
+        const categoryIds = blog.Categories.map(category => category.id);
+
+        const blogs = await Blog.findAll({
+            include: [{ model: Category, where: { id: categoryIds } }],
+            where: {
+                id: { [Op.ne]: blog.id },
+            },
+            limit 
+        });
+
+        return res.status(200).json({
+            message: 'Related blogs fetched successfully!',
+            blogs
         });
 
     } catch (err) {
