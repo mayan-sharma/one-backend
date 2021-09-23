@@ -374,6 +374,10 @@ exports.photo = async (req, res) => {
 
         const photo = await Photo.findOne({ where: { BlogId: blog.id } });
 
+        if (!photo) return res.status(404).json({
+            message: 'Photo not found!'
+        });
+
         res.set('Content-Type', photo.contentType)
         return res.send(photo.data);
 
