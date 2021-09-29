@@ -4,6 +4,9 @@ const db = require('../models');
 const errorHandler = require('../lib/errorHandler');
 
 const Category = db.Category;
+const Blog = db.Blog;
+const Tag = db.Tag;
+const User = db.User;
 
 exports.create = async (req, res) => {
     const { name } = req.body;
@@ -50,9 +53,18 @@ exports.getBySlug = async (req, res) => {
             });
         }
 
+        const blogs = await Blog.findAll({ 
+            include: [
+                { model: Category, where: { id: category.id } }, 
+                { model: Tag },
+                { model: User, attributes: ['id', 'name', 'email'] }
+            ]
+        });
+
         return res.status(200).json({
             message: 'Category found!',
-            category
+            category,
+            blogs
         });
 
     } catch (err) {
