@@ -178,9 +178,9 @@ exports.getAllWithCategoriesAndTags = async (req, res) => {
     try {
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = req.query.skip ? parseInt(req.query.skip) : 0;
-
+        
         const blogs = await Blog.findAll({
-            attributes: ['id', 'title', 'slug', 'excerpt'],
+            attributes: ['id', 'title', 'slug', 'excerpt', 'createdAt'],
             include: [
                 {
                     model: User,
@@ -197,7 +197,6 @@ exports.getAllWithCategoriesAndTags = async (req, res) => {
             ],
             order: [['createdAt', 'DESC']],
             offset: skip,
-            subQuery: false,
             limit
         });
 
