@@ -89,12 +89,13 @@ exports.getPublicProfile = async (req, res) => {
         const username = req.params.username;
         
         let user = await User.findOne({ where: { username } });
-        user.photo = null;
-
+        
         if (!user) return res.status(404).json({
             message: 'User not found!'
         });
-
+        
+        user.photo = null;
+        
         const blogs = await Blog.findAll({
             include: [
                 { model: User, where: { id: user.id } },
