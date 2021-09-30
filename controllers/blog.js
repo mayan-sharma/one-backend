@@ -384,3 +384,37 @@ exports.photo = async (req, res) => {
         errorHandler(res, err);
     }
 }
+
+exports.search = async (req, res) => {
+    try {
+        const { term } = req.params;
+        if (term) {
+            const blogs = await Blog.findAll({
+                where: {
+                    [Op.or]: [
+                        { title: { [Op.like]: `%${term}%` } },
+                        { body: { [Op.like]: `%${term}%` } }
+                    ]
+                }
+            });
+
+            if (blogs.length === 0) {
+                return res.status(404).json({
+                    message: 'No blogs found'
+                });
+            }
+
+            return res.status(200).json({
+                message: 'Blogs found',
+                blogs
+            });
+        }
+
+        return res.status(400).json({
+            message: 'Search term required!'
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}

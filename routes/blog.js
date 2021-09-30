@@ -7,8 +7,9 @@ const router = express.Router();
 
 router.get('/blogs-categories-tags', blogController.getAllWithCategoriesAndTags);
 router.get('/photo/:slug', blogController.photo);
-router.get('/:slug', blogController.getBySlug);
+router.get('/search/:term', blogController.search);
 router.get('/related/:slug', blogController.getRelated);
+router.get('/:slug', blogController.getBySlug);
 router.get('/', blogController.getAll);
 
 router.post('/', isAuth, blogController.create);
