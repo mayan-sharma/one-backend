@@ -6,6 +6,9 @@ const config = require('../config/config');
 const errorHandler = require('../lib/errorHandler');
 
 const User = db.User;
+const Blog = db.Blog;
+const Category = db.Category;
+const Tag = db.Tag;
 
 exports.register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -79,6 +82,36 @@ exports.getUser = (req, res) => {
         message: 'User fetched successfully!',
         user: req.user
     })
+}
+
+exports.getPublicProfile = async (req, res) => {
+    try {
+        const username = req.params.username;
+        
+        let user = await User.findOne({ where: { username } });
+        user.photo = null;
+
+        if (!user) return res.status(404).json({
+            message: 'User not found!'
+        });
+
+        const blogs = await Blog.findAll({
+            include: [
+                { model: User, where: { id: user.id } },
+                { model: Category },
+                { model: Tag }
+            ]
+        });
+
+        return res.status(200).json({
+            message: 'Public profile fetched successfully!',
+            user,
+            blogs
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
 }
 
 exports.isAuth = async (req, res, next) => {
