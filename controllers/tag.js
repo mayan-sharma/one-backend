@@ -57,7 +57,7 @@ exports.getBySlug = async (req, res) => {
             include: [
                 { model: Tag, where: { id: tag.id }},
                 { model: Category }, 
-                { model: User, attributes: ['id', 'name', 'email'] }
+                { model: User, attributes: ['id', 'name', 'email', 'username'] }
             ]
         });
 

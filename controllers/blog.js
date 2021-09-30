@@ -113,7 +113,7 @@ exports.getAll = async (req, res) => {
             include: [
                 {
                     model: User,
-                    attributes: ['id', 'name', 'email']
+                    attributes: ['id', 'name', 'email', 'username']
                 },
                 {
                     model: Category,
@@ -145,7 +145,7 @@ exports.getBySlug = async (req, res) => {
             include: [
                 {
                     model: User,
-                    attributes: ['id', 'name', 'email']
+                    attributes: ['id', 'name', 'email', 'username']
                 },
                 {
                     model: Category,
@@ -184,7 +184,7 @@ exports.getAllWithCategoriesAndTags = async (req, res) => {
             include: [
                 {
                     model: User,
-                    attributes: ['id', 'name', 'email']
+                    attributes: ['id', 'name', 'email', 'username']
                 },
                 {
                     model: Category,
