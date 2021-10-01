@@ -18,10 +18,6 @@ module.exports = function(db, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false
         },
-        photo: {
-            type: DataTypes.BLOB,
-            allowNull: true
-        },
         role: {
             type: DataTypes.INTEGER,
             defaultValue: 0

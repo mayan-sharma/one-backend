@@ -11,6 +11,9 @@ db.User = require('./User')(db, DataTypes);
 db.User.hasMany(db.Blog);
 db.Blog.belongsTo(db.User);
 
+db.User.hasOne(db.Photo);
+db.Photo.belongsTo(db.User);
+
 db.Blog.hasOne(db.Photo);
 db.Photo.belongsTo(db.Blog);
 
