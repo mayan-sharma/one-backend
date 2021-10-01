@@ -1,5 +1,8 @@
 const shortId = require('shortid');
 const jwt = require('jsonwebtoken');
+const formidable = require('formidable');
+const fs = require('fs');
+const _ = require('lodash');
 
 const db = require('../models');
 const config = require('../config/config');
@@ -9,6 +12,7 @@ const User = db.User;
 const Blog = db.Blog;
 const Category = db.Category;
 const Tag = db.Tag;
+const Photo = db.Photo;
 
 exports.register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -110,6 +114,82 @@ exports.getPublicProfile = async (req, res) => {
             user,
             blogs
         });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}
+
+exports.update = async (req, res) => {
+    try {
+        let form = new formidable.IncomingForm();
+        const { fields, files } = await new Promise((resolve, reject) => {
+            form.parse(req, (err, fields, files) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve({ fields, files });
+            });
+        });
+
+        let user = await User.findOne({ id: req.user.id });
+        user = _.merge(user, fields);
+        
+        let photo = {};
+        if (files.photo) {
+            // 1mb
+            if (files.photo.size > 10000000) {
+                return res.status(400).json({
+                    message: 'Image should be less than 1mb'
+                });
+            }
+            photo.data = fs.readFileSync(files.photo.path);
+            photo.contentType = files.photo.type;
+        }
+
+        await db.transaction(async transaction => {
+            try {
+                await user.save({ transaction });
+                if (user.getPhoto()) {
+                    const photoInstance = await Photo.build(photo, { transaction });
+                    await user.setPhoto(photoInstance, { transaction });
+                }
+                else {
+                    await user.createPhoto(photo, { transaction });
+                }
+
+            } catch (err) {
+                errorHandler(res, err);
+            }
+        });
+
+        return res.status(200).json({
+            message: 'User updated successfully!'
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    } 
+}
+
+exports.photo = async (req, res) => {
+    try {
+        const username = req.params.username;
+        const user = await User.findOne({ where: { username } });
+
+        if (!user) return res.status(404).json({
+            message: 'No user found!'
+        });
+
+        const photo = await Photo.findOne({ where: { UserId: user.id } });
+
+        if (!photo) return res.status(404).json({
+            message: 'Photo not found!'
+        });
+
+        res.set('Content-Type', photo.contentType)
+        return res.send(photo.data);
 
     } catch (err) {
         errorHandler(res, err);

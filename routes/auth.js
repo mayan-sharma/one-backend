@@ -8,9 +8,12 @@ const router = express.Router();
 
 router.post('/register', userRegisterValidator, runValidation, authController.register);
 router.post('/login', userLoginValidator, runValidation, authController.login);
-router.get('/logout', authController.logout);
 
+router.get('/logout', authController.logout);
 router.get('/:username', authController.getPublicProfile);
+router.get('/photo/:username', authController.photo);
 router.get('/', authController.isAuth, authController.getUser);
+
+router.put('/update', authController.isAuth, authController.update);
 
 module.exports = router;
