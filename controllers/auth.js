@@ -151,12 +151,14 @@ exports.update = async (req, res) => {
         await db.transaction(async transaction => {
             try {
                 await user.save({ transaction });
-                if (user.getPhoto()) {
-                    const photoInstance = await Photo.build(photo, { transaction });
-                    await user.setPhoto(photoInstance, { transaction });
-                }
-                else {
-                    await user.createPhoto(photo, { transaction });
+                if (photo.data) {
+                    if (user.getPhoto()) {
+                        const photoInstance = await Photo.build(photo, { transaction });
+                        await user.setPhoto(photoInstance, { transaction });
+                    }
+                    else {
+                        await user.createPhoto(photo, { transaction });
+                    }
                 }
 
             } catch (err) {
