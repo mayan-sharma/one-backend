@@ -121,6 +121,7 @@ exports.getPublicProfile = async (req, res) => {
 }
 
 exports.update = async (req, res) => {
+    console.log(req.user);
     try {
         let form = new formidable.IncomingForm();
         const { fields, files } = await new Promise((resolve, reject) => {
@@ -133,7 +134,7 @@ exports.update = async (req, res) => {
             });
         });
 
-        let user = await User.findOne({ id: req.user.id });
+        let user = await User.findOne({ where: { id: req.user.id } });
         user = _.merge(user, fields);
         
         let photo = {};
