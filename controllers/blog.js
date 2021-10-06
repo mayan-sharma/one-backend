@@ -459,3 +459,26 @@ exports.search = async (req, res) => {
         errorHandler(res, err);
     }
 }
+
+exports.canUpdateDeleteBlog = async (req, res, next) => {
+    try {
+        const slug = req.params.slug.toLowerCase();
+        const blog = await Blog.findOne({ where: { slug } });
+        
+        if (!blog) {
+            return res.status(404).json({
+                message: 'No blog found!'
+            });
+        }
+
+        if (blog.UserId !== req.user.id) {
+            return res.status(403).json({
+                message: 'You are not authorized!'
+            });
+        }
+        next();
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}

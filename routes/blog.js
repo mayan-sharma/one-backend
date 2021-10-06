@@ -19,4 +19,8 @@ router.post('/', isAuth, blogController.create);
 router.delete('/:slug', isAuth, isAdmin, blogController.remove);
 router.put('/:slug', isAuth, isAdmin, blogController.update);
 
+// for user
+router.delete('/user/:slug', isAuth, blogController.canUpdateDeleteBlog, blogController.remove);
+router.put('/user/:slug', isAuth, blogController.canUpdateDeleteBlog, blogController.update);
+
 module.exports = router;
