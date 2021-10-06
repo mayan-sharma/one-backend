@@ -10,10 +10,12 @@ router.get('/photo/:slug', blogController.photo);
 router.get('/search/:term', blogController.search);
 router.get('/related/:slug', blogController.getRelated);
 router.get('/:slug', blogController.getBySlug);
+router.get('/user/:username', blogController.getBlogsOfUser);
 router.get('/', blogController.getAll);
 
 router.post('/', isAuth, blogController.create);
 
+// for admin
 router.delete('/:slug', isAuth, isAdmin, blogController.remove);
 router.put('/:slug', isAuth, isAdmin, blogController.update);
 

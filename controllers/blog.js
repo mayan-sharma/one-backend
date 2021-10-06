@@ -249,6 +249,47 @@ exports.getRelated = async (req, res) => {
     }
 }
 
+exports.getBlogsOfUser = async (req, res) => {
+    try {
+        const username = req.params.username;
+
+        const user = await User.findOne({ where: { username } });
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'No user found!'
+            });
+        }
+
+        const blogs = await Blog.findAll({
+            where: { UserId: user.id },
+            attributes: ['id', 'title', 'slug', 'excerpt'],
+            include: [
+                {
+                    model: User,
+                    attributes: ['id', 'name', 'email', 'username']
+                },
+                {
+                    model: Category,
+                    attributes: ['id', 'name', 'slug']
+                },
+                {
+                    model: Tag,
+                    attributes: ['id', 'name', 'slug']
+                }
+            ]
+        });
+
+        return res.status(200).json({
+            message: 'Blogs of user fetched successfully!',
+            blogs
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}
+
 exports.remove = async (req, res) => {
     const slug = req.params.slug.toLowerCase();
     try {
