@@ -34,3 +34,33 @@ exports.contact = async (req, res) => {
         errorHandler(res, err);
     }
 }
+
+exports.contactUser = async (req, res) => {
+    try {
+        const { name, email, message, userEmail } = req.body;
+        
+        const emailData = {
+            to: userEmail,
+            from: email,
+            subject: `Someone messaged you from one`,
+            text: `Email recieved from contact form \n 
+                Sender name: ${name} \n
+                Sender message: ${message}`,
+            html: `
+                <h4>Message recieved from contact form</h4>
+                <p>Name: ${name}</p>
+                <p>Message: ${message}</p>
+                <hr/>
+            `
+        }
+    
+        await sgMail.send(emailData);
+
+        return res.status(200).json({
+            message: 'Email sent successfully!'
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}

@@ -7,5 +7,6 @@ const { contactFormValidator } = require('../validators/form');
 const router = express.Router();    
 
 router.post('/', contactFormValidator, runValidation, formController.contact);
+router.post('/user', contactFormValidator, runValidation, formController.contactUser);
 
 module.exports = router;
