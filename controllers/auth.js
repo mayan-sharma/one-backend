@@ -7,6 +7,10 @@ const _ = require('lodash');
 const db = require('../models');
 const config = require('../config/config');
 const errorHandler = require('../lib/errorHandler');
+const sgMail = require('@sendgrid/mail');
+const { SENDGRID_API_KEY } = require('../config/config');
+
+sgMail.setApiKey(SENDGRID_API_KEY);
 
 const User = db.User;
 const Blog = db.Blog;
@@ -193,6 +197,59 @@ exports.photo = async (req, res) => {
 
         res.set('Content-Type', photo.contentType)
         return res.send(photo.data);
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ where: { email } });
+
+        if (!user) return res.status(404).json({
+            message: 'No user with this email!'
+        });
+
+        const token = jwt.sign({ id: user.id }, config.JWT_PASSWORD_RESET_SECRET, { expiresIn: '10m' });
+
+        const emailData = {
+            to: email,
+            from: config.EMAIL_FROM,
+            subject: `Password Reset Link - one`,
+            html: `
+                <h4>Please use the following link to reset your account's password</h4>
+                <p>${config.CLIENT_URL}/auth/password/reset/${token}</p>
+            `
+        }
+
+        await sgMail.send(emailData);
+
+        return res.status(200).json({
+            message: 'Reset password link sent to mail!'
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, password } = req.body;
+        const payload = jwt.verify(token, config.JWT_PASSWORD_RESET_SECRET);
+        
+        let user = await User.findOne({ where: { id: payload.id } });
+
+        if (!user) return errorHandler(res, err);
+        user = _.extend(user, { password });
+
+        await user.save();
+
+        return res.status(200).json({
+            message: 'Password updated successfully!'
+        });
 
     } catch (err) {
         errorHandler(res, err);

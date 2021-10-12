@@ -2,7 +2,7 @@ const express = require('express');
 
 const authController = require('../controllers/auth');
 const { runValidation } = require('../validators');
-const { userRegisterValidator, userLoginValidator } = require('../validators/auth');
+const { userRegisterValidator, userLoginValidator, forgotPasswordValidator, resetPasswordValidator } = require('../validators/auth');
 
 const router = express.Router();    
 
@@ -15,5 +15,7 @@ router.get('/photo/:username', authController.photo);
 router.get('/', authController.isAuth, authController.getUser);
 
 router.put('/update', authController.isAuth, authController.update);
+router.put('/forgot-password', forgotPasswordValidator, runValidation, authController.forgotPassword);
+router.put('/reset-password', resetPasswordValidator, runValidation, authController.resetPassword);
 
-module.exports = router;
+module.exports = router;    
