@@ -8,6 +8,7 @@ const config = {
     DATABASE_PORT: process.env.DATABASE_PORT || '',
     DATABASE_NAME: process.env.DATABASE_NAME || '',
     DATABASE_PASSWORD: process.env.DATABASE_PASSWORD || '',
+    JWT_PRE_REGISTER_SECRET: process.env.JWT_PRE_REGISTER_SECRET?.toString() || '',
     JWT_SECRET: process.env.JWT_SECRET?.toString() || '',
     JWT_PASSWORD_RESET_SECRET: process.env.JWT_PASSWORD_RESET_SECRET?.toString() || '',
     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY || '',

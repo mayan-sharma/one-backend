@@ -18,9 +18,52 @@ const Category = db.Category;
 const Tag = db.Tag;
 const Photo = db.Photo;
 
-exports.register = async (req, res) => {
+exports.preRegister = async (req, res) => {
     const { name, email, password } = req.body;
     try {
+        const user = await User.findOne({ where: { email } });
+
+        if (user) {
+            return res.status(400).json({
+                message: 'User already exists!'
+            });
+        }
+
+        const token = jwt.sign({ name, email, password }, config.JWT_PRE_REGISTER_SECRET, { expiresIn: '1d' });
+
+        const emailData = {
+            to: email,
+            from: config.EMAIL_FROM,
+            subject: `Account activation link | one`,
+            html: `
+                <h4>Please use the following link to activate your account</h4>
+                <p>${config.CLIENT_URL}/auth/activate/${token}</p>
+            `
+        }
+
+        await sgMail.send(emailData);
+
+        return res.status(200).json({
+            message: 'Account activation link has been sent to email!'
+        });
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}
+
+exports.register = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({
+                message: 'Token required to register user!'
+            });
+        }
+
+        const { name, email, password } = jwt.verify(token, config.JWT_PRE_REGISTER_SECRET);
+
         const user = await User.findOne({ where: { email } });
 
         if (user) {

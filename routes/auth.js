@@ -6,7 +6,8 @@ const { userRegisterValidator, userLoginValidator, forgotPasswordValidator, rese
 
 const router = express.Router();    
 
-router.post('/register', userRegisterValidator, runValidation, authController.register);
+router.post('/pre-register', userRegisterValidator, runValidation, authController.preRegister);
+router.post('/register', authController.register);
 router.post('/login', userLoginValidator, runValidation, authController.login);
 
 router.get('/logout', authController.logout);
