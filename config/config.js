@@ -13,7 +13,8 @@ const config = {
     JWT_PASSWORD_RESET_SECRET: process.env.JWT_PASSWORD_RESET_SECRET?.toString() || '',
     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY || '',
     EMAIL_TO: process.env.EMAIL_TO || '',
-    EMAIL_FROM: process.env.EMAIL_FROM || ''
+    EMAIL_FROM: process.env.EMAIL_FROM || '',
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || ''
 };
 
 module.exports = config;

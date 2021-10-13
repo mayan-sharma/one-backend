@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const formidable = require('formidable');
 const fs = require('fs');
 const _ = require('lodash');
+const { OAuth2Client } = require('google-auth-library');
 
 const db = require('../models');
 const config = require('../config/config');
@@ -11,6 +12,7 @@ const sgMail = require('@sendgrid/mail');
 const { SENDGRID_API_KEY } = require('../config/config');
 
 sgMail.setApiKey(SENDGRID_API_KEY);
+const googleAuthClient = new OAuth2Client(config.GOOGLE_CLIENT_ID); 
 
 const User = db.User;
 const Blog = db.Blog;
@@ -115,6 +117,50 @@ exports.login = async (req, res) => {
             user: { id: user.id, username: user.username, email: user.email, role: user.role },
             token
         })
+
+    } catch (err) {
+        errorHandler(res, err);
+    }
+}
+
+exports.googleLogin = async (req, res) => {
+    try {
+        const idToken = req.body.tokenId;
+        const response = await googleAuthClient.verifyIdToken({ idToken, audience: config.GOOGLE_CLIENT_ID });
+        const { email_verified, name, email, jti } = response.payload;
+        
+        if (email_verified) {
+            const user = await User.findOne({ where: { email } });
+            if (user) {
+                const token = jwt.sign({ id: user.id }, config.JWT_SECRET, { expiresIn: '1d' });
+                
+                return res.status(200).json({
+                    message: 'User logged in successfully!',
+                    user: { id: user.id, name: user.name, email: user.email, username: user.username },
+                    token
+                });
+            
+            } else {
+                const username = shortId.generate();
+                const password = jti;
+                
+                const user = await User.create({
+                    name, email, password, username
+                });
+                
+                const token = jwt.sign({ id: user.id }, config.JWT_SECRET, { expiresIn: '1d' });
+                
+                return res.status(200).json({
+                    message: 'User logged in successfully!',
+                    user: { id: user.id, name: user.name, email: user.email, username: user.username },
+                    token
+                });
+
+            }
+
+        } else return res.status(400).json({
+            message: 'Invalid email!'
+        });
 
     } catch (err) {
         errorHandler(res, err);

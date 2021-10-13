@@ -10,6 +10,8 @@ router.post('/pre-register', userRegisterValidator, runValidation, authControlle
 router.post('/register', authController.register);
 router.post('/login', userLoginValidator, runValidation, authController.login);
 
+router.post('/google-login', authController.googleLogin);
+
 router.get('/logout', authController.logout);
 router.get('/:username', authController.getPublicProfile);
 router.get('/photo/:username', authController.photo);
