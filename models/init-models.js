@@ -44,11 +44,11 @@ const initModels = sequelize => {
     })
 
     return {
-        tag,
-        user,
-        blog,
-        photo,
-        category
+        Tag: tag,
+        User: user,
+        Blog: blog,
+        Photo: photo,
+        Category: category
     }
 }
 

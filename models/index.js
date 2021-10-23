@@ -22,4 +22,4 @@ db.sync({ force: true })
 
 models = { ...initModels(db) }
 
-module.exports = db
+module.exports = models
