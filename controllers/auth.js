@@ -6,12 +6,10 @@ const _ = require('lodash');
 const { OAuth2Client } = require('google-auth-library');
 
 const db = require('../models');
+const utils = require('../utils');
 const config = require('../config/config');
 const errorHandler = require('../lib/errorHandler');
-const sgMail = require('@sendgrid/mail');
-const { SENDGRID_API_KEY } = require('../config/config');
 
-sgMail.setApiKey(SENDGRID_API_KEY);
 const googleAuthClient = new OAuth2Client(config.GOOGLE_CLIENT_ID); 
 
 const User = db.User;
@@ -43,7 +41,7 @@ exports.preRegister = async (req, res) => {
             `
         }
 
-        await sgMail.send(emailData);
+        await utils.sendMail(emailData);
 
         return res.status(200).json({
             message: 'Account activation link has been sent to email!'
@@ -313,7 +311,7 @@ exports.forgotPassword = async (req, res) => {
             `
         }
 
-        await sgMail.send(emailData);
+        await utils.sendMail(emailData);
 
         return res.status(200).json({
             message: 'Reset password link sent to mail!'
