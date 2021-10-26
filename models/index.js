@@ -1,36 +1,25 @@
-const { DataTypes } = require('sequelize');
+const db = require('../config/postgres')
+const { initModels } = require('./init-models')
 
-const db = require('../config/postgres');
+db.authenticate()
+    .then(
+        console.log(
+            'Connection has been established successfully.',
+        ),
+    )
+    .catch(err => {
+        console.error(
+            'Unable to connect to the database:',
+            err,
+        )
+    })
 
-db.Blog = require('./Blog')(db, DataTypes);
-db.Photo = require('./Photo')(db, DataTypes);
-db.Category = require('./Category')(db, DataTypes);
-db.Tag = require('./Tag')(db, DataTypes);
-db.User = require('./User')(db, DataTypes);
+db.sync({ force: true })
+    .then(console.log('DB Synced!'))
+    .catch(err => {
+        console.log('Unable to sync database: ', err)
+    })
 
-db.User.hasMany(db.Blog);
-db.Blog.belongsTo(db.User);
+models = { ...initModels(db) }
 
-db.User.hasOne(db.Photo);
-db.Photo.belongsTo(db.User);
-
-db.Blog.hasOne(db.Photo);
-db.Photo.belongsTo(db.Blog);
-
-db.Blog.belongsToMany(db.Category, {
-    through: 'BlogCategory'
-});
-
-db.Category.belongsToMany(db.Blog, {
-    through: 'BlogCategory'
-});
-
-db.Blog.belongsToMany(db.Tag, {
-    through: 'BlogTag'
-});
-
-db.Tag.belongsToMany(db.Blog, {
-    through: 'BlogTag'
-});
-
-module.exports = db;
+module.exports = models
