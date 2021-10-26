@@ -1,9 +1,6 @@
-const sgMail = require('@sendgrid/mail');
+const utils = require('../utils');
 
-const { SENDGRID_API_KEY, EMAIL_TO } = require('../config/config');
 const errorHandler = require('../lib/errorHandler');
-
-sgMail.setApiKey(SENDGRID_API_KEY);
 
 exports.contact = async (req, res) => {
     try {
@@ -24,7 +21,7 @@ exports.contact = async (req, res) => {
             `
         }
     
-        await sgMail.send(emailData);
+        await utils.sendMail(emailData);
 
         return res.status(200).json({
             message: 'Email sent successfully!'
@@ -54,7 +51,7 @@ exports.contactUser = async (req, res) => {
             `
         }
     
-        await sgMail.send(emailData);
+        await utils.sendMail(emailData);
 
         return res.status(200).json({
             message: 'Email sent successfully!'
