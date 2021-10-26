@@ -428,7 +428,7 @@ exports.photo = async (req, res) => {
 
 exports.search = async (req, res) => {
     try {
-        const { term } = req.params;
+        const { q: term } = req.query;
         if (term) {
             const blogs = await Blog.findAll({
                 where: {

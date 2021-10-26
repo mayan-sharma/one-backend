@@ -51,7 +51,7 @@ Path | Method | Description
 --- | --- | ---
 | /blogs-categories-tags | GET | Gets all blogs, categories, tags |
 | /photo/:slug | GET | Get landing photo of a blog |
-| /search/:term | GET | Search blogs |
+| /search/?q=<search term> | GET | Search blogs |
 | /related/:slug | GET | Gets related blogs |
 | /:slug | GET | Gets a blog |
 | /user/:username | GET | Gets all blogs by user |
